@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2242%22%20fill%3D%22%23e0912a%22%2F%3E%3Ctext%20x%3D%2296%22%20y%3D%22126%22%20font-family%3D%22system-ui%2Csans-serif%22%20font-size%3D%22104%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3ES%3C%2Ftext%3E%3C%2Fsvg%3E">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20192%20192%22%3E%3Crect%20width%3D%22192%22%20height%3D%22192%22%20rx%3D%2242%22%20fill%3D%22%23e0912a%22%2F%3E%3Ctext%20x%3D%2296%22%20y%3D%22126%22%20font-family%3D%22system-ui%2Csans-serif%22%20font-size%3D%22104%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20text-anchor%3D%22middle%22%3ES%3C%2Ftext%3E%3C%2Fsvg%3E">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22SANKOFA%20GAMES%22%2C%22short_name%22%3A%22SANKOFA%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22any%22%2C%22background_color%22%3A%22%230d1117%22%2C%22theme_color%22%3A%22%23e0912a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2522http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2522%2520viewBox%253D%25220%25200%2520192%2520192%2522%253E%253Crect%2520width%253D%2522192%2522%2520height%253D%2522192%2522%2520rx%253D%252242%2522%2520fill%253D%2522%2523e0912a%2522%252F%253E%253Ctext%2520x%253D%252296%2522%2520y%253D%2522126%2522%2520font-family%253D%2522system-ui%252Csans-serif%2522%2520font-size%253D%2522104%2522%2520font-weight%253D%2522700%2522%2520fill%253D%2522%2523ffffff%2522%2520text-anchor%253D%2522middle%2522%253ES%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+<link rel="manifest" href="manifest.json">
 <style>
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -231,6 +231,11 @@ body{background:#0d1117;color:#e9edf5;overflow:hidden;-webkit-font-smoothing:ant
   if (LAYOUT === "launcher"){ if (idx >= 0) show(idx); else goHome(); }
   else show(idx >= 0 ? idx : start);
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
 </script>
 <!-- WITTYHUB SUPPORT LINK (DARK MODE) -->
 <script>
