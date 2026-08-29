@@ -267,61 +267,109 @@ if ('serviceWorker' in navigator) {
     document.body.appendChild(bar);
   })();
   </script>
-  <!-- SHARE & INSTALL BUTTONS -->
+  <!-- PROFESSIONAL HUB DOCK (SHARE, INSTALL, SUPPORT) -->
+<style>
+  /* Only show on the launcher hub */
+  #launcher .hub-dock {
+    position: absolute;
+    right: 24px;
+    bottom: 24px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #launcher .hub-dock button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(57, 65, 79, 0.8);
+    background: rgba(20, 24, 31, 0.85);
+    backdrop-filter: blur(8px);
+    color: #d3d8e0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  #launcher .hub-dock button:hover {
+    border-color: #e0912a;
+    color: #e0912a;
+    transform: translateY(-2px);
+  }
+
+  /* Hidden by default until browser supports install */
+  #installBtn {
+    display: none;
+  }
+
+  /* Hide the dock when a game is open */
+  #stage:has(> .frame.on) .hub-dock,
+  #launcher:not(.on) .hub-dock {
+    display: none !important;
+  }
+</style>
+
 <script>
-  (function () {
-    // ----- Install Button -----
-    let deferredPrompt;
-    const installBtn = document.createElement('button');
-    installBtn.textContent = 'Install';
-    installBtn.style.cssText = 'position:fixed;right:12px;bottom:50px;z-index:999999;background:rgba(20,24,31,.86);color:#d3d8e0;border:1px solid #39414f;border-radius:6px;padding:6px 11px;font:12px sans-serif;cursor:pointer;display:none;';
+(function () {
+  var launcher = document.getElementById('launcher');
+  if (!launcher) return;
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
+  var dock = document.createElement('div');
+  dock.className = 'hub-dock';
 
-    installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') installBtn.style.display = 'none';
-      deferredPrompt = null;
-    });
+  // --- SUPPORT Button ---
+  var supportBtn = document.createElement('button');
+  supportBtn.title = 'Support';
+  supportBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  supportBtn.onclick = function() { window.open('https://wittyhub.co?app=sankofa-games&v=1.0', '_blank'); };
+  dock.appendChild(supportBtn);
 
-    window.addEventListener('appinstalled', () => {
-      installBtn.style.display = 'none';
-    });
-
-    document.body.appendChild(installBtn);
-
-    // ----- Share Button -----
-    const shareBtn = document.createElement('button');
-    shareBtn.textContent = 'Share';
-    shareBtn.style.cssText = 'position:fixed;right:12px;bottom:88px;z-index:999999;background:rgba(20,24,31,.86);color:#d3d8e0;border:1px solid #39414f;border-radius:6px;padding:6px 11px;font:12px sans-serif;cursor:pointer;';
-
-    shareBtn.addEventListener('click', async () => {
-      const shareData = {
-        title: document.title,
-        text: 'Check out SANKOFA GAMES!',
-        url: window.location.href
-      };
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          // Fallback: copy to clipboard
-          await navigator.clipboard.writeText(window.location.href);
-          alert('Link copied to clipboard!');
-        }
-      } catch (err) {
-        console.log('Share cancelled', err);
+  // --- SHARE Button ---
+  var shareBtn = document.createElement('button');
+  shareBtn.title = 'Share App';
+  shareBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+  shareBtn.onclick = async function() {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: document.title, text: 'Check out SANKOFA GAMES!', url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
       }
-    });
+    } catch(e) {}
+  };
+  dock.appendChild(shareBtn);
 
-    document.body.appendChild(shareBtn);
-  })();
+  // --- INSTALL Button ---
+  var installBtn = document.createElement('button');
+  installBtn.id = 'installBtn';
+  installBtn.title = 'Install App';
+  installBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+  installBtn.style.display = 'none';
+
+  var deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'flex';
+  });
+
+  installBtn.onclick = async function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  };
+  dock.appendChild(installBtn);
+
+  launcher.appendChild(dock);
+})();
 </script>
 </body>
 </html>
