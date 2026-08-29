@@ -267,5 +267,61 @@ if ('serviceWorker' in navigator) {
     document.body.appendChild(bar);
   })();
   </script>
+  <!-- SHARE & INSTALL BUTTONS -->
+<script>
+  (function () {
+    // ----- Install Button -----
+    let deferredPrompt;
+    const installBtn = document.createElement('button');
+    installBtn.textContent = 'Install';
+    installBtn.style.cssText = 'position:fixed;right:12px;bottom:50px;z-index:999999;background:rgba(20,24,31,.86);color:#d3d8e0;border:1px solid #39414f;border-radius:6px;padding:6px 11px;font:12px sans-serif;cursor:pointer;display:none;';
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') installBtn.style.display = 'none';
+      deferredPrompt = null;
+    });
+
+    window.addEventListener('appinstalled', () => {
+      installBtn.style.display = 'none';
+    });
+
+    document.body.appendChild(installBtn);
+
+    // ----- Share Button -----
+    const shareBtn = document.createElement('button');
+    shareBtn.textContent = 'Share';
+    shareBtn.style.cssText = 'position:fixed;right:12px;bottom:88px;z-index:999999;background:rgba(20,24,31,.86);color:#d3d8e0;border:1px solid #39414f;border-radius:6px;padding:6px 11px;font:12px sans-serif;cursor:pointer;';
+
+    shareBtn.addEventListener('click', async () => {
+      const shareData = {
+        title: document.title,
+        text: 'Check out SANKOFA GAMES!',
+        url: window.location.href
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          // Fallback: copy to clipboard
+          await navigator.clipboard.writeText(window.location.href);
+          alert('Link copied to clipboard!');
+        }
+      } catch (err) {
+        console.log('Share cancelled', err);
+      }
+    });
+
+    document.body.appendChild(shareBtn);
+  })();
+</script>
 </body>
 </html>
